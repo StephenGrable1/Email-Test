@@ -17,8 +17,7 @@ function render() {
       let nextPage = response.next;
 
       if (response.next !== null) {
-        //if we are not at the end of the paging results
-        //we will add the emails we received to our accumulator array
+        //if we are not at the end of the paging results do the following
         for (var i = 0; i < emails.length; i++) {
           if (emailsArr.indexOf(emails[i]) === -1) {
             emailsArr.push(emails[i]);
@@ -26,6 +25,8 @@ function render() {
         }
         runDBQueries(nextPage, emailsArr)
       } else {
+        //when we get here, we are at the end of the paging 
+        //results and can continue to filter our emails
         getFilteredEmails(emailsArr);
       }
     })
@@ -46,10 +47,11 @@ function render() {
 */
 
 function getFilteredEmails(allEmails = [], searchInputs = getSearchInputs()) {
-  let props = ['author', 'subject', 'body'];
   let filteredEmails = [];
+  let props = ['author', 'subject', 'body'];
 
-  //This portion of the code has a fairly large ~ O(n^2) complexity 
+  //This portion of the code has a fairly large ~ O(n^2) complexity
+  //However, I will continue since our inputs are rather small at the moment 
   for (var i = 0; i < allEmails.length; i++) {
     let email = allEmails[i];
     for (var j = 0; j < props.length; j++) {
