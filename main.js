@@ -9,7 +9,28 @@
 */
 
 function render() {
-  // TODO 1: Your Code Here
+  //this function will be called repeatedly until the response.next
+  //value is null, which means we've reached the last page of results
+  function runDBQueries(next = 0, emailsArr = []) {
+    fetchEmailsFromDatabase(next, (response) => {
+      let emails = response.result;
+      let nextPage = response.next;
+
+      if (response.next !== null) {
+        //if we are not at the end of the paging results
+        //we will add the emails we received to our accumulator array
+        for (var i = 0; i < emails.length; i++) {
+          if (emailsArr.indexOf(emails[i]) === -1) {
+            emailsArr.push(emails[i]);
+          }
+        }
+        runDBQueries(nextPage, emailsArr)
+      } else {
+        getFilteredEmails(emailsArr);
+      }
+    })
+  }
+  runDBQueries()
 }
 
 /*
@@ -25,7 +46,20 @@ function render() {
 */
 
 function getFilteredEmails(allEmails = [], searchInputs = getSearchInputs()) {
-  // TODO 2: Your Code Here
+  let props = ['author', 'subject', 'body'];
+  let filteredEmails = [];
+
+  //This portion of the code has a fairly large ~ O(n^2) complexity 
+  for (var i = 0; i < allEmails.length; i++) {
+    let email = allEmails[i];
+    for (var j = 0; j < props.length; j++) {
+      if (email[props[j]].includes(searchInputs[0]) || email[props[j]].includes(searchInputs[1]) || email[props[j]].includes(searchInputs[2])) {
+        filteredEmails.push(email);
+      }
+    }
+  }
+  renderEmails(filteredEmails);
+
 }
 
 render();
